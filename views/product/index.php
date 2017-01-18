@@ -45,8 +45,17 @@ $this->params['breadcrumbs'][] = $this->title;
             'contentOptions' => ['class' => 'text-center skip-export', 'noWrap' => true],
             'template'       => '{update} {delete1}',
             'buttons'        => [
-                    'delete1' => function($model,$index){
-                        $btn_del =  Html::a('<span class="glyphicon glyphicon-trash"></span>', $url = null, ['title'=>'Delete', 'data-pjax'=>'0','id'=>"btn_del'.$index.'",'rel'=>'/index.php?r=product/delete','class'=>'btn btn-danger']);
+                    'delete1' => function($url, $model){
+                        $btn_del =  Html::a('<span class="glyphicon glyphicon-trash"></span>', $url = null, ['title'=>'Delete', 'data-pjax'=>'0','class'=>'btn btn-danger','onclick'=>'
+                                $.post("index.php?r=product/delete&id='.$model->id.'",function(data){
+                                    console.log(data);
+                                    var socket = io.connect("http://localhost:8080");
+                                   if(data){
+                                     socket.emit("delete","DeleteOK");
+                                   }
+                                    
+                                });
+                            ']);
                         return $btn_del;
                     },
                 ],
@@ -60,17 +69,17 @@ $this->params['breadcrumbs'][] = $this->title;
 $this->registerJsFile('@web/js/socket.io/dist/socket.io.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 $head = '$("document").ready(function(){';
 $head.='
-  var socket = io.connect("http://localhost:8080");
+   var socket = io.connect("http://localhost:8080");
 
+  //Add
   socket.on("addOK",function(data){
-     $.pjax.reload({container:"#countries"});  //Reload GridView
+     $.pjax.reload({container:"#countries",async:false});  //Reload GridView
   });
 
-//Delete
-  $("#btn_del").click(function(){
-    alert(123);
+  //Delete
+  socket.on("deleteOK",function(data){
+     $.pjax.reload({container:"#countries",async:false});  //Reload GridView
   });
-
 ';
 $head.='});';
 $this->registerJs($head);
