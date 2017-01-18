@@ -6,4 +6,10 @@ io.on('connection', function (socket) {
     console.log(data);
     io.emit('addOK','addOK');
   });
+
+  //Delete
+  socket.on('delete', function(data){
+  	io.emit('deleteOK','DeleteOK');
+  });
+
 });
